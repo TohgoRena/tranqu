@@ -1,9 +1,12 @@
+![OQTOPUS logo](./asset/oqtopus-logo.png)
+
 # Tranqu
 
 [![CI](https://github.com/oqtopus-team/tranqu/actions/workflows/ci.yaml/badge.svg)](https://github.com/oqtopus-team/tranqu/actions/workflows/ci.yaml)
 [![codecov](https://codecov.io/gh/oqtopus-team/tranqu/graph/badge.svg?token=RCXTMMXOMV)](https://codecov.io/gh/oqtopus-team/tranqu)
 [![pypi version](https://img.shields.io/pypi/v/tranqu.svg)](https://pypi.org/project/tranqu/)
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+[![slack](https://img.shields.io/badge/slack-OQTOPUS-pink.svg?logo=slack&style=plastic")](https://join.slack.com/t/oqtopus/shared_invite/zt-3bpjb7yc3-Vg8IYSMY1m5wV3DR~TMSnw)
 
 ## Overview
 
@@ -41,8 +44,8 @@ The name "Tranqu" is derived from "tranquility," reflecting the desire to enable
 - [Development Flow](./developer_guidelines/index.md)
 - [Setup Development Environment](./developer_guidelines/setup.md)
 - [How to Contribute](./CONTRIBUTING.md)
-- [Code of Conduct](./CODE_OF_CONDUCT.md)
-- [Security](./SECURITY.md)
+- [Code of Conduct](https://oqtopus-team.github.io/code-of-conduct/)
+- [Security](https://oqtopus-team.github.io/security-policy/)
 
 ## Citation
 

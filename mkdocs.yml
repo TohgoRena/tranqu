@@ -13,8 +13,8 @@ nav:
   - Development Flow: developer_guidelines/index.md
   - Setup Development Environment: developer_guidelines/setup.md
   - How to Contribute: CONTRIBUTING.md
-  - Code of Conduct: CODE_OF_CONDUCT.md
-  - Security: SECURITY.md
+  - Code of Conduct: "https://oqtopus-team.github.io/code-of-conduct/"
+  - Security: "https://oqtopus-team.github.io/security-policy/"
 
 theme:
   name: material
@@ -24,6 +24,8 @@ theme:
   font:
     text: "Roboto"
     code: "Roboto Mono"
+  logo: asset/oqtopus-white_symbol.png
+  favicon: asset/favicon.png
   icon:
     repo: fontawesome/brands/github
   features:
