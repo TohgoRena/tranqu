@@ -110,7 +110,7 @@ from .transpiler import (
 )
 from .transpiler_dispatcher import TranspilerDispatcher
 
-if TYPE_CHECKING:
+if TYPE_CHECKING:  # pragma: no cover
     from .transpile_result import TranspileResult
 
 

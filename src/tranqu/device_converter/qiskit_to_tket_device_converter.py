@@ -6,7 +6,6 @@ from pytket.architecture import Architecture  # type: ignore[attr-defined]
 from pytket.backends import Backend  # type: ignore[attr-defined]
 from pytket.backends.backend import (  # type: ignore[attr-defined]
     BackendInfo,
-    CircuitStatus,
     ResultHandle,
 )
 from pytket.circuit import OpType  # type: ignore[attr-defined]
@@ -107,7 +106,7 @@ class QiskitToTketDeviceConverter(DeviceConverter):
             def _result_id_type(self) -> tuple[type[str]]:
                 return (str,)
 
-            def circuit_status(self, handle: ResultHandle) -> CircuitStatus:
+            def circuit_status(self, handle: ResultHandle) -> NoReturn:
                 raise NotImplementedError(CONVERSION_ONLY_ERROR)
 
         return ConvertedBackend()

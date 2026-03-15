@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-if TYPE_CHECKING:
+if TYPE_CHECKING:  # pragma: no cover
     from pytket import Circuit  # type: ignore[attr-defined]
     from pytket.predicates import CompilationUnit  # type: ignore[attr-defined]
 

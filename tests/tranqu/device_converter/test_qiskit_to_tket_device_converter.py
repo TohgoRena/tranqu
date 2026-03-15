@@ -74,6 +74,59 @@ class TestQiskitToTketDeviceConverter:
             assert OpType.noop in gate_set
         assert all("unknown" not in str(op).lower() for op in gate_set)
 
+    def test_convert_falls_back_to_version_attribute(self):
+        qiskit_backend = MockQiskitBackendWithVersionFallback()
+
+        result = self.converter.convert(qiskit_backend)
+
+        assert result.backend_info.version == "1.2.3"
+
+    def test_convert_uses_default_version_when_no_version_is_available(self):
+        qiskit_backend = MockQiskitBackendWithoutVersion()
+
+        result = self.converter.convert(qiskit_backend)
+
+        assert result.backend_info.version == "1.0.0"
+
+    def test_convert_builds_compilation_pass(self):
+        qiskit_backend = MockQiskitBackend(
+            coupling_map=CouplingMap([[0, 1]]),
+            num_qubits=2,
+            operation_names=["tk1"],
+        )
+
+        result = self.converter.convert(qiskit_backend)
+
+        with pytest.raises(RuntimeError, match="available gateset"):
+            result.default_compilation_pass(optimisation_level=2)
+
+    def test_convert_builds_minimal_compilation_pass_without_constraints(self):
+        qiskit_backend = MockQiskitBackend()
+
+        result = self.converter.convert(qiskit_backend)
+        compilation_pass = result.default_compilation_pass()
+
+        assert isinstance(compilation_pass, BasePass)
+        assert result.backend_info.architecture is None
+        assert result.backend_info.gate_set == set()
+
+    def test_converted_backend_unsupported_methods_raise(self):
+        qiskit_backend = MockQiskitBackend()
+
+        result = self.converter.convert(qiskit_backend)
+
+        with pytest.raises(NotImplementedError, match="conversion only"):
+            _ = result.required_predicates
+        with pytest.raises(NotImplementedError, match="conversion only"):
+            result.rebase_pass()
+        with pytest.raises(NotImplementedError, match="conversion only"):
+            result.process_circuits([Circuit(1)])
+        with pytest.raises(NotImplementedError, match="conversion only"):
+            result.get_result(ResultHandle("0"))
+        assert result._result_id_type == (str,)  # noqa: SLF001
+        with pytest.raises(NotImplementedError, match="conversion only"):
+            result.circuit_status(ResultHandle("0"))
+
 
 class MockQiskitBackend(BackendV2):
     """Mock class for Qiskit's BackendV2."""
@@ -85,9 +138,10 @@ class MockQiskitBackend(BackendV2):
         coupling_map: CouplingMap | None = None,
         num_qubits: int | None = None,
         operation_names: list[str] | None = None,
+        backend_version: str | None = "0.0.1",
     ) -> None:
         """Initialize the backend."""
-        super().__init__(name="mock_device", backend_version="0.0.1")
+        super().__init__(name="mock_device", backend_version=backend_version)
         self._target = Target()
         self._coupling_map = coupling_map
         self._num_qubits = num_qubits
@@ -172,3 +226,21 @@ class MockQiskitBackend(BackendV2):
     def rebase_pass(self) -> BasePass:
         """Return rebase settings."""
         raise NotImplementedError(self._CONVERSION_ONLY_ERROR)
+
+
+class MockQiskitBackendWithVersionFallback(MockQiskitBackend):
+    @property
+    def version(self) -> str:  # type: ignore[override]
+        return "1.2.3"
+
+    def __init__(self) -> None:
+        super().__init__(backend_version=None)
+
+
+class MockQiskitBackendWithoutVersion(MockQiskitBackend):
+    @property
+    def version(self) -> None:  # type: ignore[override]
+        return None
+
+    def __init__(self) -> None:
+        super().__init__(backend_version=None)
