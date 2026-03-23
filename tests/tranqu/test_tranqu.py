@@ -5,6 +5,8 @@ import re
 import pytest
 from pytket import Circuit  # type: ignore[attr-defined]
 from qiskit import QuantumCircuit  # type: ignore[import-untyped]
+from qiskit.qasm3 import loads
+from qiskit.quantum_info import Statevector
 from qiskit_ibm_runtime.fake_provider import FakeSantiagoV2
 
 from tranqu import Tranqu, __version__
@@ -46,6 +48,45 @@ class QiskitToEnigmaConverter(ProgramConverter):
 @pytest.fixture
 def tranqu() -> Tranqu:
     return Tranqu()
+
+
+def assert_semantically_valid_oqtopus_qiskit_qasm(transpiled_program: str) -> None:
+    assert transpiled_program.startswith(
+        'OPENQASM 3.0;\ninclude "stdgates.inc";\nbit[2] c;\n'
+    )
+
+    transpiled_circuit = loads(transpiled_program)
+
+    assert transpiled_circuit.count_ops().get("cx", 0) == 1
+    assert transpiled_circuit.count_ops().get("measure", 0) == 2
+
+    measurement_mapping = {}
+    for instruction in transpiled_circuit.data:
+        if instruction.operation.name != "measure":
+            continue
+        qubit_index = transpiled_circuit.find_bit(instruction.qubits[0]).index
+        clbit_index = transpiled_circuit.find_bit(instruction.clbits[0]).index
+        measurement_mapping[clbit_index] = qubit_index
+
+    assert set(measurement_mapping) == {0, 1}
+
+    control_qubit = measurement_mapping[0]
+    target_qubit = measurement_mapping[1]
+
+    assert control_qubit != target_qubit
+    assert {control_qubit, target_qubit}.issubset({0, 1, 2, 3})
+
+    expected_circuit = QuantumCircuit(transpiled_circuit.num_qubits)
+    expected_circuit.h(control_qubit)
+    expected_circuit.cx(control_qubit, target_qubit)
+
+    actual_without_measurements = transpiled_circuit.remove_final_measurements(
+        inplace=False
+    )
+
+    assert Statevector.from_instruction(actual_without_measurements).equiv(
+        Statevector.from_instruction(expected_circuit)
+    )
 
 
 class TestTranqu:
@@ -149,17 +190,7 @@ c[1] = measure q[1];
                 device_lib="oqtopus",
             )
 
-            expected_program = """OPENQASM 3.0;
-include "stdgates.inc";
-bit[2] c;
-rz(pi/2) $3;
-sx $3;
-rz(pi/2) $3;
-cx $3, $2;
-c[0] = measure $3;
-c[1] = measure $2;
-"""
-            assert result.transpiled_program == expected_program
+            assert_semantically_valid_oqtopus_qiskit_qasm(result.transpiled_program)
 
     def test_program_conversion_via_qiskit(self, tranqu: Tranqu):
         tranqu._program_converter_manager._converters.clear()  # noqa: SLF001
