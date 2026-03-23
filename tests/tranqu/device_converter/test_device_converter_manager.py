@@ -5,6 +5,7 @@ import pytest
 from tranqu.device_converter import (
     DeviceConverter,
     DeviceConverterAlreadyRegisteredError,
+    DeviceConverterError,
     DeviceConverterManager,
     DeviceConverterNotFoundError,
     PassThroughDeviceConverter,
@@ -61,3 +62,13 @@ class TestDeviceConverterManager:
             match=r"Converter not found for conversion from lib1 to lib2\.",
         ):
             self.manager.fetch_converter("lib1", "lib2")
+
+    def test_invalid_backend_type_without_argument(self):
+        error = DeviceConverterError.invalid_backend_type()
+
+        assert str(error) == "Invalid backend type"
+
+    def test_invalid_backend_type_with_argument(self):
+        error = DeviceConverterError.invalid_backend_type(dict)
+
+        assert str(error) == "Invalid backend type: <class 'dict'>"
