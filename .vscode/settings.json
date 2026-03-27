@@ -69,5 +69,6 @@
       "MD024": false,
       "MD033": false,
       "MD041": false
-      }
+      },
+      "python-envs.defaultEnvManager": "ms-python.python:system"
 }

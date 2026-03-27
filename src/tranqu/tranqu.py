@@ -110,10 +110,20 @@ from .transpiler_dispatcher import TranspilerDispatcher
 if TYPE_CHECKING:
     from .transpile_result import TranspileResult
 
+<<<<<<< HEAD
+=======
+import yaml
+
+"""
+>>>>>>> main
 try:
     import yaml  # type: ignore[import-untyped]
 except ModuleNotFoundError:  # pragma: no cover
     yaml = None
+<<<<<<< HEAD
+=======
+"""
+>>>>>>> main
 
 
 class Tranqu:
@@ -141,7 +151,10 @@ class Tranqu:
             "transpiler_options": None,
         }
 
+<<<<<<< HEAD
         # for save
+=======
+>>>>>>> main
         self._config_log: dict[str, Any] = {
             "default_transpiler_lib": None,
             "transpilers": [],
@@ -179,7 +192,7 @@ class Tranqu:
             program_lib (str | None): The library or format of the program. If None,
                 will attempt to detect based on program type.
             transpiler_lib (str | None): The name of the transpiler to be used.
-            transpiler_options (dict[str, Any]): Options passed to the transpiler.
+            transpiler_options (dict[str, Any] | None): Options passed to the transpiler
             device (Any | None): Information about the device on which
                 the program will be executed.
             device_lib (str | None): Specifies the type of the device.
@@ -197,7 +210,10 @@ class Tranqu:
         if transpiler_lib is None and isinstance(default_transpiler_lib, str):
             transpiler_lib = default_transpiler_lib
 
+<<<<<<< HEAD
         # merge user's option
+=======
+>>>>>>> main
         if transpiler_options is None:
             if isinstance(default_options, dict):
                 transpiler_options = dict(default_options)
@@ -237,7 +253,8 @@ class Tranqu:
 
         """
         self._transpiler_manager.register_default_transpiler_lib(
-            default_transpiler_lib, allow_override=allow_override
+            default_transpiler_lib,
+            allow_override=allow_override,
         )
         self._config_log["default_transpiler_lib"] = default_transpiler_lib
 
@@ -249,8 +266,6 @@ class Tranqu:
         allow_override: bool = False,
     ) -> None:
         """Register a transpiler for optimizing quantum circuits.
-
-        This method allows you to register a transpiler for optimizing quantum circuits.
 
         Args:
             transpiler_lib (str): The name of the transpiler library.
@@ -274,25 +289,11 @@ class Tranqu:
     ) -> None:
         """Register a program converter.
 
-        This method allows you to register a converter for transforming
-        between different program types.
-
         Args:
-            from_program_lib (str): The identifier for the source program type of
-                the converter to be registered.
-            to_program_lib (str): The identifier for the target program type of
-                the converter to be registered.
-            converter (ProgramConverter): The program converter to be registered
-                (subclass of ProgramConverter).
+            from_program_lib (str): The identifier for the source program type.
+            to_program_lib (str): The identifier for the target program type.
+            converter (ProgramConverter): The converter to register.
             allow_override (bool): When True, allows overwriting of existing converters.
-                Defaults to False.
-
-        Examples:
-            To register a converter that transforms from "foo" to "bar", you can call:
-
-                tranqu.register_program_converter(
-                    "foo", "bar",
-                    FooToBarProgramConverter)
 
         """
         self._program_converter_manager.register_converter(
@@ -312,23 +313,11 @@ class Tranqu:
     ) -> None:
         """Register a device converter.
 
-        This method allows you to register a converter for transforming
-        between different device types.
-
         Args:
-            from_device_lib (str): The identifier for the source device type of
-                the converter to be registered.
-            to_device_lib (str): The identifier for the target device type of
-                the converter to be registered.
-            converter (DeviceConverter): The device converter to be registered
-                (subclass of DeviceConverter).
+            from_device_lib (str): The identifier for the source device type.
+            to_device_lib (str): The identifier for the target device type.
+            converter (DeviceConverter): The converter to register.
             allow_override (bool): When True, allows overwriting of existing converters.
-                Defaults to False.
-
-        Examples:
-            To register a converter that transforms from "foo" to "bar", you would call:
-
-                tranqu.register_device_converter("foo", "bar", FooToBarDeviceConverter)
 
         """
         self._device_converter_manager.register_converter(
@@ -345,23 +334,7 @@ class Tranqu:
         *,
         allow_override: bool = False,
     ) -> None:
-        """Register a mapping between a program type and its library identifier.
-
-        This method allows automatic detection of the program library based on the
-        program's type when calling transpile().
-
-        Args:
-            program_lib (str): The identifier for the program library
-              (e.g., "qiskit", "tket")
-            program_type (type): The type class to be associated with the library
-            allow_override (bool): When True, allows overwriting of existing type
-                registrations. Defaults to False.
-
-        Examples:
-            To register Qiskit's QuantumCircuit type:
-                tranqu.register_program_type("qiskit", QuantumCircuit)
-
-        """
+        """Register a mapping between a program type and its library identifier."""
         self._program_type_manager.register_type(
             program_lib,
             program_type,
@@ -375,23 +348,7 @@ class Tranqu:
         *,
         allow_override: bool = False,
     ) -> None:
-        """Register a mapping between a device type and its library identifier.
-
-        This method enables automatic detection of the device library based on
-        the device type when calling transpile().
-
-        Args:
-            device_lib (str): The identifier for the device library
-              (e.g., "qiskit", "oqtopus")
-            device_type (type): The type class to be associated with the library
-            allow_override (bool): When True, allows overwriting of existing type
-                registrations. Defaults to False.
-
-        Examples:
-            To register Qiskit's backend type:
-                tranqu.register_device_type("qiskit", BackendV2)
-
-        """
+        """Register a mapping between a device type and its library identifier."""
         self._device_type_manager.register_type(
             device_lib,
             device_type,
@@ -468,6 +425,7 @@ class Tranqu:
     def _register_builtin_device_types(self) -> None:
         self.register_device_type("qiskit", BackendV2)
 
+<<<<<<< HEAD
     # -----------------------------
     # YAML config load/save
     # -----------------------------
@@ -497,6 +455,32 @@ class Tranqu:
         )
         self._default_transpile["transpiler_options"] = default_transpile.get(
             "transpiler_options"
+=======
+    def load(self, *, config_path: str | Path, reset: bool = True) -> None:
+        """Load configuration from a YAML file."""
+        config = self._read_yaml(config_path)
+
+        default_transpile_raw = config.get("default_transpile")
+        if default_transpile_raw is None:
+            default_transpile: dict[str, object] = {}
+        else:
+            default_transpile = self._require_dict(
+                default_transpile_raw,
+                "default_transpile",
+            )
+
+        self._default_transpile["program_lib"] = self._require_optional_str(
+            default_transpile.get("program_lib"),
+            "default_transpile.program_lib",
+        )
+        self._default_transpile["transpiler_lib"] = self._require_optional_str(
+            default_transpile.get("transpiler_lib"),
+            "default_transpile.transpiler_lib",
+        )
+        self._default_transpile["transpiler_options"] = self._require_optional_dict(
+            default_transpile.get("transpiler_options"),
+            "default_transpile.transpiler_options",
+>>>>>>> main
         )
 
         if reset:
@@ -505,8 +489,11 @@ class Tranqu:
             self._transpiler_manager = TranspilerManager()
             self._program_type_manager = ProgramTypeManager()
             self._device_type_manager = DeviceTypeManager()
+<<<<<<< HEAD
 
             # reset save-log too
+=======
+>>>>>>> main
             self._config_log = {
                 "default_transpiler_lib": None,
                 "transpilers": [],
@@ -516,11 +503,21 @@ class Tranqu:
                 "device_types": [],
             }
 
+<<<<<<< HEAD
         # store the loaded config (for save)
         self._loaded_config = copy.deepcopy(config)
         self._loaded_config_path = Path(config_path)
 
         use_builtins = bool(config.get("use_builtins", False))
+=======
+        self._loaded_config = copy.deepcopy(config)
+        self._loaded_config_path = Path(config_path)
+
+        use_builtins = self._require_bool(
+            config.get("use_builtins", False),
+            "use_builtins",
+        )
+>>>>>>> main
         if use_builtins:
             self._register_builtin_program_converters()
             self._register_builtin_device_converters()
@@ -530,6 +527,7 @@ class Tranqu:
 
         default_lib = config.get("default_transpiler_lib")
         if default_lib is not None:
+<<<<<<< HEAD
             # allow_override=True because config should be authoritative
             self.register_default_transpiler_lib(str(default_lib), allow_override=True)
 
@@ -539,17 +537,55 @@ class Tranqu:
         self._apply_device_converters(config.get("device_converters", []) or [])
         self._apply_program_types(config.get("program_types", []) or [])
         self._apply_device_types(config.get("device_types", []) or [])
+=======
+            default_lib_str = self._require_str(
+                default_lib,
+                "default_transpiler_lib",
+            )
+            self.register_default_transpiler_lib(
+                default_lib_str,
+                allow_override=True,
+            )
+
+        self._apply_transpilers(
+            self._require_list(config.get("transpilers", []), "transpilers")
+        )
+        self._apply_program_converters(
+            self._require_list(
+                config.get("program_converters", []),
+                "program_converters",
+            )
+        )
+        self._apply_device_converters(
+            self._require_list(
+                config.get("device_converters", []),
+                "device_converters",
+            )
+        )
+        self._apply_program_types(
+            self._require_list(config.get("program_types", []), "program_types")
+        )
+        self._apply_device_types(
+            self._require_list(config.get("device_types", []), "device_types")
+        )
+>>>>>>> main
 
     def save(self, *, config_path: str | Path) -> None:
         """Save the last loaded configuration to a YAML file."""
         if self._loaded_config is None:
+<<<<<<< HEAD
             # Should not happen because __init__ sets _loaded_config even for defaults,
             # but keep it safe.
+=======
+>>>>>>> main
             config: dict[str, Any] = {"use_builtins": True}
         else:
             config = copy.deepcopy(self._loaded_config)
 
+<<<<<<< HEAD
         # if user changed default_transpiler_lib after load, reflect it
+=======
+>>>>>>> main
         if self._config_log["default_transpiler_lib"] is not None:
             config["default_transpiler_lib"] = self._config_log[
                 "default_transpiler_lib"
@@ -557,7 +593,10 @@ class Tranqu:
 
         self._write_yaml(config_path, config)
 
+<<<<<<< HEAD
     # ---------- YAML I/O ----------
+=======
+>>>>>>> main
     @staticmethod
     def _read_yaml(path: str | Path) -> dict[str, Any]:
         if yaml is None:  # pragma: no cover
@@ -584,7 +623,56 @@ class Tranqu:
                 allow_unicode=True,
             )
 
+<<<<<<< HEAD
     # ---------- factory/import helpers ----------
+=======
+    @staticmethod
+    def _require_bool(value: object, name: str) -> bool:
+        if not isinstance(value, bool):
+            message = f"{name} must be a bool."
+            raise TypeError(message)
+        return value
+
+    @staticmethod
+    def _require_str(value: object, name: str) -> str:
+        if not isinstance(value, str):
+            message = f"{name} must be a str."
+            raise TypeError(message)
+        return value
+
+    @staticmethod
+    def _require_optional_str(value: object, name: str) -> str | None:
+        if value is None:
+            return None
+        if not isinstance(value, str):
+            message = f"{name} must be a str or None."
+            raise TypeError(message)
+        return value
+
+    @staticmethod
+    def _require_dict(value: object, name: str) -> dict[str, object]:
+        if not isinstance(value, dict):
+            message = f"{name} must be a dict."
+            raise TypeError(message)
+        return value
+
+    @staticmethod
+    def _require_optional_dict(value: object, name: str) -> dict[str, object] | None:
+        if value is None:
+            return None
+        if not isinstance(value, dict):
+            message = f"{name} must be a dict or None."
+            raise TypeError(message)
+        return value
+
+    @staticmethod
+    def _require_list(value: object, name: str) -> list[object]:
+        if not isinstance(value, list):
+            message = f"{name} must be a list."
+            raise TypeError(message)
+        return value
+
+>>>>>>> main
     @staticmethod
     def _import_symbol(ref: str) -> Any:  # noqa: ANN401
         if ":" not in ref:
@@ -592,7 +680,10 @@ class Tranqu:
             raise ValueError(message)
         mod_name, sym = ref.split(":", 1)
 
+<<<<<<< HEAD
         # minimal safety: allow only tranqu / qiskit / pytket namespaces
+=======
+>>>>>>> main
         allowed_prefixes = ("tranqu.", "qiskit", "pytket")
         if not mod_name.startswith(allowed_prefixes):
             message = f"Import is not allowed: {mod_name}"
@@ -601,6 +692,7 @@ class Tranqu:
         mod = importlib.import_module(mod_name)
         return getattr(mod, sym)
 
+<<<<<<< HEAD
     def _instantiate_factory(self, factory: dict[str, Any]) -> Any:  # noqa: ANN401
         if not isinstance(factory, dict):
             message = "factory must be a dict"
@@ -628,11 +720,40 @@ class Tranqu:
             message = "type.import is required (no builtin mapping table)"
             raise ValueError(message)
         t = self._import_symbol(str(import_ref))
+=======
+    def _instantiate_factory(self, factory: dict[str, object]) -> Any:  # noqa: ANN401
+        factory_dict = self._require_dict(factory, "factory")
+
+        import_ref_raw = factory_dict.get("import")
+        if import_ref_raw is None:
+            message = "factory.import is required (no builtin mapping table)"
+            raise ValueError(message)
+        import_ref = self._require_str(import_ref_raw, "factory.import")
+
+        kwargs_raw = factory_dict.get("kwargs")
+        if kwargs_raw is None:
+            kwargs: dict[str, object] = {}
+        else:
+            kwargs = self._require_dict(kwargs_raw, "factory.kwargs")
+
+        cls = self._import_symbol(import_ref)
+        return cls(**kwargs)
+
+    def _resolve_type_spec(self, spec: dict[str, object]) -> type:
+        spec_dict = self._require_dict(spec, "type")
+        import_ref_raw = spec_dict.get("import")
+        if import_ref_raw is None:
+            message = "type.import is required (no builtin mapping table)"
+            raise ValueError(message)
+        import_ref = self._require_str(import_ref_raw, "type.import")
+        t = self._import_symbol(import_ref)
+>>>>>>> main
         if not isinstance(t, type):
             message = f"Imported symbol is not a type: {import_ref}"
             raise TypeError(message)
         return t
 
+<<<<<<< HEAD
     # ---------- apply explicit registrations ----------
 
     def _apply_transpilers(self, items: list[Any]) -> None:
@@ -660,10 +781,42 @@ class Tranqu:
             dst = str(item["to"])
             allow_override = bool(item.get("allow_override", False))
             conv = self._instantiate_factory(item["factory"])
+=======
+    def _apply_transpilers(self, items: list[object]) -> None:
+        for item in items:
+            item_dict = self._require_dict(item, "each transpiler item")
+            lib = self._require_str(item_dict.get("lib"), "transpilers[].lib")
+            allow_override = self._require_bool(
+                item_dict.get("allow_override", False),
+                "transpilers[].allow_override",
+            )
+            factory = self._require_dict(
+                item_dict.get("factory"),
+                "transpilers[].factory",
+            )
+            transpiler = self._instantiate_factory(factory)
+            self.register_transpiler(lib, transpiler, allow_override=allow_override)
+
+    def _apply_program_converters(self, items: list[object]) -> None:
+        for item in items:
+            item_dict = self._require_dict(item, "each program_converter item")
+            src = self._require_str(item_dict.get("from"), "program_converters[].from")
+            dst = self._require_str(item_dict.get("to"), "program_converters[].to")
+            allow_override = self._require_bool(
+                item_dict.get("allow_override", False),
+                "program_converters[].allow_override",
+            )
+            factory = self._require_dict(
+                item_dict.get("factory"),
+                "program_converters[].factory",
+            )
+            conv = self._instantiate_factory(factory)
+>>>>>>> main
             if not isinstance(conv, ProgramConverter):
                 message = "factory must create a ProgramConverter"
                 raise TypeError(message)
             self.register_program_converter(
+<<<<<<< HEAD
                 src, dst, conv, allow_override=allow_override
             )
 
@@ -679,10 +832,33 @@ class Tranqu:
             dst = str(item["to"])
             allow_override = bool(item.get("allow_override", False))
             conv = self._instantiate_factory(item["factory"])
+=======
+                src,
+                dst,
+                conv,
+                allow_override=allow_override,
+            )
+
+    def _apply_device_converters(self, items: list[object]) -> None:
+        for item in items:
+            item_dict = self._require_dict(item, "each device_converter item")
+            src = self._require_str(item_dict.get("from"), "device_converters[].from")
+            dst = self._require_str(item_dict.get("to"), "device_converters[].to")
+            allow_override = self._require_bool(
+                item_dict.get("allow_override", False),
+                "device_converters[].allow_override",
+            )
+            factory = self._require_dict(
+                item_dict.get("factory"),
+                "device_converters[].factory",
+            )
+            conv = self._instantiate_factory(factory)
+>>>>>>> main
             if not isinstance(conv, DeviceConverter):
                 message = "factory must create a DeviceConverter"
                 raise TypeError(message)
             self.register_device_converter(
+<<<<<<< HEAD
                 src, dst, conv, allow_override=allow_override
             )
 
@@ -710,4 +886,40 @@ class Tranqu:
             lib = str(item["lib"])
             allow_override = bool(item.get("allow_override", False))
             device_type = self._resolve_type_spec(item["type"])
+=======
+                src,
+                dst,
+                conv,
+                allow_override=allow_override,
+            )
+
+    def _apply_program_types(self, items: list[object]) -> None:
+        for item in items:
+            item_dict = self._require_dict(item, "each program_type item")
+            lib = self._require_str(item_dict.get("lib"), "program_types[].lib")
+            allow_override = self._require_bool(
+                item_dict.get("allow_override", False),
+                "program_types[].allow_override",
+            )
+            type_spec = self._require_dict(
+                item_dict.get("type"),
+                "program_types[].type",
+            )
+            program_type = self._resolve_type_spec(type_spec)
+            self.register_program_type(lib, program_type, allow_override=allow_override)
+
+    def _apply_device_types(self, items: list[object]) -> None:
+        for item in items:
+            item_dict = self._require_dict(item, "each device_type item")
+            lib = self._require_str(item_dict.get("lib"), "device_types[].lib")
+            allow_override = self._require_bool(
+                item_dict.get("allow_override", False),
+                "device_types[].allow_override",
+            )
+            type_spec = self._require_dict(
+                item_dict.get("type"),
+                "device_types[].type",
+            )
+            device_type = self._resolve_type_spec(type_spec)
+>>>>>>> main
             self.register_device_type(lib, device_type, allow_override=allow_override)
